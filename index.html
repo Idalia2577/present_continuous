@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Present Continuous Adventure 🌸</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        rose: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            300: '#fda4af',
+                            400: '#fb7185',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                        },
+                        purple: {
+                            50: '#faf5ff',
+                            100: '#f3e8ff',
+                            400: '#c084fc',
+                            500: '#a855f7',
+                            600: '#9333ea',
+                        }
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 3s infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            overflow: hidden; /* Prevent scrolling when game is active */
+            background: linear-gradient(135deg, #ffe4e6 0%, #f3e8ff 100%);
+        }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px 0 rgba(225, 29, 72, 0.1);
+        }
+
+        .btn-elegant {
+            background: linear-gradient(45deg, #fb7185, #c084fc);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-elegant:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px -10px rgba(192, 132, 252, 0.8);
+        }
+
+        .btn-elegant:active {
+            transform: translateY(1px);
+        }
+
+        /* Custom Scrollbar for Dropdown */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fff1f2;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #fda4af;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #fb7185;
+        }
+
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .progress-bar-fill {
+            transition: width 0.1s linear;
+        }
+        
+        /* Floating background shapes */
+        .shape {
+            position: absolute;
+            filter: blur(50px);
+            z-index: -1;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col items-center justify-center relative">
+
+    <!-- Decorative Background Elements -->
+    <div class="shape bg-rose-300 w-64 h-64 rounded-full top-10 left-10 animate-pulse-slow"></div>
+    <div class="shape bg-purple-300 w-80 h-80 rounded-full bottom-10 right-10 animate-bounce-slow" style="animation-duration: 6s;"></div>
+
+    <!-- MAIN CONTAINER -->
+    <div id="app-container" class="glass-panel w-11/12 max-w-md md:max-w-2xl lg:max-w-4xl rounded-3xl p-6 md:p-10 relative overflow-hidden flex flex-col justify-center min-h-[500px]">
+        
+        <!-- LOADER VIEW -->
+        <div id="view-loader" class="flex flex-col items-center justify-center h-full space-y-4">
+            <i class="fas fa-spinner fa-spin text-4xl text-rose-500"></i>
+            <p class="text-rose-600 font-medium animate-pulse">Cargando la magia...</p>
+        </div>
+
+        <!-- LOGIN VIEW -->
+        <div id="view-login" class="hidden flex-col items-center justify-center h-full space-y-6 text-center">
+            <div class="mb-4 text-rose-500 text-6xl">
+                <i class="fas fa-crown"></i>
+            </div>
+            <h1 class="text-3xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-purple-600 mb-2">
+                Present Continuous
+            </h1>
+            <p class="text-gray-600 mb-6 font-medium">Aprende jugando de forma elegante ✨</p>
+            
+            <div class="w-full max-w-xs space-y-4">
+                <div class="relative">
+                    <select id="student-select" class="w-full px-4 py-3 rounded-2xl border-2 border-rose-200 bg-white/50 focus:bg-white focus:outline-none focus:border-purple-400 transition-all text-gray-700 font-medium appearance-none shadow-sm cursor-pointer">
+                        <option value="" disabled selected>🌸 Selecciona tu nombre...</option>
+                        <!-- Options will be populated here -->
+                    </select>
+                    <i class="fas fa-chevron-down absolute right-4 top-4 text-rose-400 pointer-events-none"></i>
+                </div>
+                
+                <button onclick="app.login()" class="btn-elegant w-full text-white font-bold text-lg px-8 py-3 rounded-full shadow-lg flex items-center justify-center gap-2">
+                    <i class="fas fa-play"></i> Ingresar
+                </button>
+            </div>
+        </div>
+
+        <!-- MENU VIEW -->
+        <div id="view-menu" class="hidden flex-col items-center justify-center h-full space-y-8 w-full">
+            <div class="text-center">
+                <h2 class="text-2xl md:text-4xl font-bold text-gray-800 mb-2">¡Hola, <span id="display-name" class="text-rose-500"></span>! 👋</h2>
+                <p class="text-gray-600">¿Lista para poner a prueba tu inglés?</p>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-4 w-full max-w-md justify-center">
+                <button onclick="app.startGame()" class="flex-1 btn-elegant text-white font-bold text-xl py-4 rounded-2xl shadow-lg flex flex-col items-center gap-2">
+                    <i class="fas fa-gamepad text-3xl"></i>
+                    <span>Jugar Ahora</span>
+                </button>
+                <button onclick="app.showLeaderboard()" class="flex-1 bg-white border-2 border-purple-200 text-purple-600 hover:bg-purple-50 font-bold text-xl py-4 rounded-2xl shadow-md transition-all flex flex-col items-center gap-2">
+                    <i class="fas fa-trophy text-3xl text-yellow-400"></i>
+                    <span>Leaderboard</span>
+                </button>
+            </div>
+            
+            <div class="mt-4 flex items-center justify-center gap-4 text-sm text-gray-500 bg-white/40 px-4 py-2 rounded-full">
+                <span><i class="fas fa-shield-halved text-rose-400"></i> Sistema Anti-Plagio Activo</span>
+            </div>
+        </div>
+
+        <!-- GAME VIEW -->
+        <div id="view-game" class="hidden flex-col h-full w-full relative">
+            <!-- Header Status -->
+            <div class="flex justify-between items-center bg-white/60 p-3 rounded-2xl shadow-sm mb-4">
+                <div class="flex items-center gap-2">
+                    <div class="bg-rose-100 text-rose-600 px-3 py-1 rounded-full font-bold text-sm">
+                        Nivel: <span id="game-level-text">1</span>
+                    </div>
+                    <div class="bg-purple-100 text-purple-600 px-3 py-1 rounded-full font-bold text-sm">
+                        Q: <span id="game-q-counter">1/10</span>
+                    </div>
+                </div>
+                <div class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fas fa-star text-yellow-400"></i> <span id="game-score">0</span> pts
+                </div>
+            </div>
+
+            <!-- Timer Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6 overflow-hidden">
+                <div id="timer-bar" class="bg-gradient-to-r from-rose-400 to-purple-500 h-2.5 rounded-full progress-bar-fill w-full"></div>
+            </div>
+
+            <!-- Question Area -->
+            <div class="flex-1 flex flex-col items-center justify-center mb-8">
+                <div class="bg-white/80 w-full max-w-2xl rounded-3xl p-8 shadow-sm text-center border border-pink-100 relative">
+                    <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-white rounded-full p-2 shadow-sm border border-pink-100">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=pink&backgroundColor=ffe4e6" alt="bot" class="w-10 h-10 rounded-full">
+                    </div>
+                    <h3 id="question-text" class="text-2xl md:text-3xl font-semibold text-gray-800 mt-4 leading-relaxed">
+                        <!-- Question goes here -->
+                    </h3>
+                </div>
+            </div>
+
+            <!-- Options Area -->
+            <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl mx-auto">
+                <!-- Options injected by JS -->
+            </div>
+        </div>
+
+        <!-- GAME OVER VIEW -->
+        <div id="view-gameover" class="hidden flex-col items-center justify-center h-full space-y-6 text-center">
+            <div class="text-7xl mb-2">
+                <i class="fas fa-award text-yellow-400 filter drop-shadow-lg"></i>
+            </div>
+            <h2 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-purple-600">
+                ¡Juego Terminado!
+            </h2>
+            <p class="text-lg text-gray-700">Tu puntaje final es:</p>
+            <div class="text-6xl font-black text-rose-500 drop-shadow-md mb-4" id="final-score">
+                0
+            </div>
+            <p class="text-sm text-gray-500 max-w-md mx-auto bg-white/50 p-3 rounded-xl border border-rose-100">
+                Tus resultados han sido guardados automáticamente en la base de datos de la profesora.
+            </p>
+            
+            <div class="flex gap-4 mt-6">
+                <button onclick="app.showMenu()" class="bg-white border-2 border-purple-200 text-purple-600 hover:bg-purple-50 font-bold px-6 py-3 rounded-full transition-all shadow-sm">
+                    <i class="fas fa-home"></i> Inicio
+                </button>
+                <button onclick="app.showLeaderboard()" class="btn-elegant text-white font-bold px-6 py-3 rounded-full shadow-lg">
+                    <i class="fas fa-list-ol"></i> Ver Ranking
+                </button>
+            </div>
+        </div>
+
+        <!-- LEADERBOARD VIEW -->
+        <div id="view-leaderboard" class="hidden flex-col h-full w-full relative">
+            <div class="flex items-center mb-6 gap-4">
+                <button onclick="app.showMenu()" class="text-gray-500 hover:text-rose-500 transition-colors bg-white rounded-full w-10 h-10 flex items-center justify-center shadow-sm">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800 flex-1">👑 Top Estudiantes</h2>
+            </div>
+            
+            <div class="flex-1 bg-white/60 rounded-2xl overflow-y-auto shadow-sm border border-rose-100 p-2 md:p-4">
+                <div id="leaderboard-content" class="space-y-2">
+                    <!-- Leaderboard items injected here -->
+                    <div class="text-center py-10 text-gray-400">
+                        <i class="fas fa-spinner fa-spin text-2xl mb-2"></i><br>
+                        Cargando puntuaciones...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOM MODAL COMPONENT (Replaces alert()) -->
+    <div id="custom-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 backdrop-blur-sm hidden transition-opacity">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-11/12 text-center shadow-2xl transform scale-95 transition-transform" id="modal-box">
+            <div id="modal-icon" class="text-5xl mb-4"></div>
+            <h3 id="modal-title" class="text-2xl font-bold text-gray-800 mb-2">Title</h3>
+            <p id="modal-text" class="text-gray-600 mb-6 font-medium text-sm leading-relaxed">Text</p>
+            <button onclick="app.closeModal()" id="modal-btn" class="btn-elegant w-full text-white font-bold py-3 rounded-full shadow-md">
+                Entendido
+            </button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /**
+         * =========================================================================
+         * IMPORTANT CONFIGURATION
+         * REPLACE THIS URL WITH YOUR GOOGLE APPS SCRIPT WEB APP DEPLOYMENT URL
+         * =========================================================================
+         */
+        const SCRIPT_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL"; 
+        
+        // -------------------------------------------------------------------------
+        // GAME DATABASE (Present Continuous Questions categorized by level)
+        // -------------------------------------------------------------------------
+        const QUESTIONS_DB = [
+            // Level 1: Easy (Am/Is/Are)
+            { level: 1, q: "She ___ playing soccer right now.", options: ["am", "is", "are", "be"], ans: 1 },
+            { level: 1, q: "I ___ doing my English homework.", options: ["am", "is", "are", "do"], ans: 0 },
+            { level: 1, q: "They ___ listening to music.", options: ["am", "is", "are", "listen"], ans: 2 },
+            { level: 1, q: "The cat ___ sleeping on the sofa.", options: ["are", "am", "is", "be"], ans: 2 },
+            { level: 1, q: "We ___ learning about present continuous.", options: ["is", "am", "are", "was"], ans: 2 },
+            
+            // Level 2: Medium (-ing forms)
+            { level: 2, q: "He is ___ (swim) in the pool.", options: ["swiming", "swimming", "swimes", "swim"], ans: 1 },
+            { level: 2, q: "Look! The boys are ___ (run) fast.", options: ["runing", "running", "runs", "ran"], ans: 1 },
+            { level: 2, q: "I am ___ (write) an email to my friend.", options: ["writeing", "writing", "writting", "writes"], ans: 1 },
+            { level: 2, q: "She is ___ (study) for her math exam.", options: ["studies", "studing", "studying", "study"], ans: 2 },
+            { level: 2, q: "We are ___ (make) a delicious cake.", options: ["makeing", "making", "makking", "makes"], ans: 1 },
+
+            // Level 3: Hard (Negative & Questions / Complete Structure)
+            { level: 3, q: "___ you coming to the party?", options: ["Are", "Is", "Am", "Do"], ans: 0 },
+            { level: 3, q: "No, they ___ watching TV.", options: ["aren't", "isn't", "am not", "don't"], ans: 0 },
+            { level: 3, q: "What ___ she ___ at the moment?", options: ["is / doing", "are / doing", "do / doing", "does / do"], ans: 0 },
+            { level: 3, q: "I ___ (not/work) today, it's my day off.", options: ["am not working", "isn't working", "aren't working", "don't working"], ans: 0 },
+            { level: 3, q: "Why ___ the baby ___?", options: ["are / crying", "is / crying", "is / cry", "do / cry"], ans: 1 }
+        ];
+
+        // -------------------------------------------------------------------------
+        // MAIN APPLICATION LOGIC
+        // -------------------------------------------------------------------------
+        const app = {
+            state: {
+                students: [],
+                currentUser: null,
+                ip: "Desconocida",
+                score: 0,
+                warnings: 0,
+                currentQIndex: 0,
+                gameQuestions: [],
+                timerId: null,
+                timeLeft: 0,
+                maxTime: 15,
+                isPlaying: false
+            },
+
+            // --- Initialization ---
+            init: async function() {
+                this.setupAntiPlagiarism();
+                await this.fetchIP();
+                await this.fetchStudents();
+            },
+
+            // --- API Calls ---
+            fetchIP: async function() {
+                try {
+                    const res = await fetch('https://api.ipify.org?format=json');
+                    const data = await res.json();
+                    this.state.ip = data.ip;
+                } catch (e) {
+                    console.warn("Could not fetch IP", e);
+                }
+            },
+
+            fetchStudents: async function() {
+                this.switchView('view-loader');
+                
+                // Demo Mode if SCRIPT_URL is not set
+                if(SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") {
+                    setTimeout(() => {
+                        this.state.students = [
+                            { name: "Ana Sofia (Demo)", grade: "5to", section: "A" },
+                            { name: "Lucia Perez (Demo)", grade: "4to", section: "B" },
+                            { name: "Maria Garcia (Demo)", grade: "5to", section: "C" }
+                        ];
+                        this.populateStudentSelect();
+                        this.switchView('view-login');
+                        this.showModal("Aviso de Configuración", "Estás en modo demostración. Recuerda cambiar el SCRIPT_URL en el código para conectar con tu Google Sheet.", "info");
+                    }, 1500);
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${SCRIPT_URL}?action=getStudents`);
+                    const data = await response.json();
+                    if(data && data.length > 0) {
+                        this.state.students = data;
+                    } else {
+                        throw new Error("No data");
+                    }
+                } catch (error) {
+                    console.error("Error fetching students:", error);
+                    // Fallback to empty state
+                    this.showModal("Error de Conexión", "No se pudo cargar la lista de alumnas desde Google Sheets. Por favor, revisa la conexión.", "error");
+                }
+                
+                this.populateStudentSelect();
+                this.switchView('view-login');
+            },
+
+            saveDataToSheet: async function(status) {
+                if(SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL" || !this.state.currentUser) return;
+                
+                const payload = {
+                    action: 'saveData',
+                    timestamp: new Date().toLocaleString('es-ES'),
+                    name: this.state.currentUser.name,
+                    grade: this.state.currentUser.grade,
+                    section: this.state.currentUser.section,
+                    ip: this.state.ip,
+                    score: this.state.score,
+                    status: status, // "STARTED" or "COMPLETED"
+                    warnings: this.state.warnings
+                };
+
+                try {
+                    // Using no-cors or standard fetch depending on App Script deployment
+                    // Typically fetch POST to Apps Script requires formatting as string
+                    await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify(payload),
+                        headers: {
+                            'Content-Type': 'text/plain;charset=utf-8', // Bypass preflight
+                        }
+                    });
+                } catch(e) {
+                    console.error("Error saving data", e);
+                }
+            },
+
+            // --- UI Transitions ---
+            switchView: function(viewId) {
+                const views = ['view-loader', 'view-login', 'view-menu', 'view-game', 'view-gameover', 'view-leaderboard'];
+                views.forEach(v => {
+                    document.getElementById(v).classList.add('hidden');
+                    document.getElementById(v).classList.remove('flex');
+                });
+                document.getElementById(viewId).classList.remove('hidden');
+                document.getElementById(viewId).classList.add('flex');
+            },
+
+            showModal: function(title, text, type = 'info') {
+                const modal = document.getElementById('custom-modal');
+                const box = document.getElementById('modal-box');
+                const titleEl = document.getElementById('modal-title');
+                const textEl = document.getElementById('modal-text');
+                const iconEl = document.getElementById('modal-icon');
+                const btnEl = document.getElementById('modal-btn');
+
+                titleEl.innerText = title;
+                textEl.innerText = text;
+                
+                // Style based on type
+                if(type === 'warning') {
+                    iconEl.innerHTML = '<i class="fas fa-triangle-exclamation text-yellow-500"></i>';
+                    btnEl.className = "w-full text-white font-bold py-3 rounded-full shadow-md transition-all bg-gradient-to-r from-yellow-400 to-orange-500 hover:scale-105";
+                } else if(type === 'error') {
+                    iconEl.innerHTML = '<i class="fas fa-circle-xmark text-red-500"></i>';
+                    btnEl.className = "w-full text-white font-bold py-3 rounded-full shadow-md transition-all bg-gradient-to-r from-red-400 to-rose-600 hover:scale-105";
+                } else {
+                    iconEl.innerHTML = '<i class="fas fa-bell text-purple-500"></i>';
+                    btnEl.className = "btn-elegant w-full text-white font-bold py-3 rounded-full shadow-md";
+                }
+
+                modal.classList.remove('hidden');
+                setTimeout(() => box.classList.remove('scale-95'), 10);
+            },
+
+            closeModal: function() {
+                const modal = document.getElementById('custom-modal');
+                const box = document.getElementById('modal-box');
+                box.classList.add('scale-95');
+                setTimeout(() => modal.classList.add('hidden'), 200);
+            },
+
+            // --- Logic Methods ---
+            populateStudentSelect: function() {
+                const select = document.getElementById('student-select');
+                // Clear existing options except first
+                while (select.options.length > 1) {
+                    select.remove(1);
+                }
+                
+                this.state.students.forEach((student, index) => {
+                    const opt = document.createElement('option');
+                    opt.value = index;
+                    opt.text = `${student.name} (${student.grade} ${student.section})`;
+                    select.appendChild(opt);
+                });
+            },
+
+            login: function() {
+                const select = document.getElementById('student-select');
+                if (select.value === "") {
+                    this.showModal("¡Ups!", "Por favor, selecciona tu nombre de la lista para continuar.", "warning");
+                    // Shake effect
+                    select.parentElement.classList.add('shake');
+                    setTimeout(() => select.parentElement.classList.remove('shake'), 500);
+                    return;
+                }
+                
+                this.state.currentUser = this.state.students[select.value];
+                document.getElementById('display-name').innerText = this.state.currentUser.name.split(' ')[0]; // Show first name
+                this.switchView('view-menu');
+                
+                // Request Fullscreen on user interaction
+                this.requestFullScreen();
+            },
+
+            showMenu: function() {
+                this.state.isPlaying = false;
+                this.switchView('view-menu');
+            },
+
+            startGame: function() {
+                // Reset game stats
+                this.state.score = 0;
+                this.state.warnings = 0;
+                this.state.currentQIndex = 0;
+                this.state.isPlaying = true;
+                
+                // Prepare 10 random questions, mixed difficulties
+                this.state.gameQuestions = this.shuffleArray([...QUESTIONS_DB]).slice(0, 10);
+                
+                this.updateScoreUI();
+                this.saveDataToSheet("STARTED");
+                
+                this.switchView('view-game');
+                this.requestFullScreen();
+                this.loadQuestion();
+            },
+
+            loadQuestion: function() {
+                const qData = this.state.gameQuestions[this.state.currentQIndex];
+                
+                // UI Updates
+                document.getElementById('game-level-text').innerText = 
+                    qData.level === 1 ? 'Fácil 🌱' : 
+                    qData.level === 2 ? 'Medio 🌸' : 'Difícil 🔥';
+                
+                document.getElementById('game-q-counter').innerText = `${this.state.currentQIndex + 1}/${this.state.gameQuestions.length}`;
+                document.getElementById('question-text').innerText = qData.q;
+                
+                // Options
+                const optsContainer = document.getElementById('options-container');
+                optsContainer.innerHTML = '';
+                
+                qData.options.forEach((optText, i) => {
+                    const btn = document.createElement('button');
+                    btn.className = "bg-white border-2 border-pink-100 hover:border-purple-300 hover:bg-purple-50 text-gray-700 font-semibold text-lg py-4 px-6 rounded-2xl shadow-sm transition-all transform hover:-translate-y-1 w-full text-center relative overflow-hidden group";
+                    
+                    // Cute dot indicator
+                    btn.innerHTML = `<span class="inline-block w-3 h-3 rounded-full bg-rose-300 mr-2 group-hover:bg-purple-500 transition-colors"></span> ${optText}`;
+                    
+                    btn.onclick = () => this.checkAnswer(i, btn);
+                    optsContainer.appendChild(btn);
+                });
+
+                // Start Timer
+                this.startTimer();
+            },
+
+            startTimer: function() {
+                clearInterval(this.state.timerId);
+                this.state.timeLeft = this.state.maxTime;
+                this.updateTimerUI();
+
+                this.state.timerId = setInterval(() => {
+                    this.state.timeLeft -= 0.1; // update every 100ms for smooth bar
+                    if(this.state.timeLeft <= 0) {
+                        clearInterval(this.state.timerId);
+                        this.handleTimeOut();
+                    }
+                    this.updateTimerUI();
+                }, 100);
+            },
+
+            updateTimerUI: function() {
+                const bar = document.getElementById('timer-bar');
+                const percentage = (this.state.timeLeft / this.state.maxTime) * 100;
+                bar.style.width = `${Math.max(0, percentage)}%`;
+                
+                // Change color if running out of time
+                if(percentage < 30) {
+                    bar.classList.remove('from-rose-400', 'to-purple-500');
+                    bar.classList.add('bg-red-500');
+                } else {
+                    bar.classList.add('from-rose-400', 'to-purple-500');
+                    bar.classList.remove('bg-red-500');
+                }
+            },
+
+            checkAnswer: function(selectedIndex, btnElement) {
+                clearInterval(this.state.timerId); // stop timer
+                
+                // Disable all buttons to prevent double click
+                const buttons = document.getElementById('options-container').querySelectorAll('button');
+                buttons.forEach(b => b.disabled = true);
+
+                const currentQ = this.state.gameQuestions[this.state.currentQIndex];
+                const isCorrect = selectedIndex === currentQ.ans;
+
+                if (isCorrect) {
+                    // Base points 100 + time bonus up to 50
+                    const timeBonus = Math.floor((this.state.timeLeft / this.state.maxTime) * 50);
+                    const levelMultiplier = currentQ.level;
+                    const points = (100 + timeBonus) * levelMultiplier;
+                    
+                    this.state.score += points;
+                    this.updateScoreUI();
+                    
+                    btnElement.classList.replace('border-pink-100', 'border-green-500');
+                    btnElement.classList.replace('bg-white', 'bg-green-100');
+                    btnElement.classList.add('text-green-700');
+                } else {
+                    btnElement.classList.replace('border-pink-100', 'border-red-500');
+                    btnElement.classList.replace('bg-white', 'bg-red-100');
+                    btnElement.classList.add('shake');
+                    
+                    // Highlight correct answer
+                    buttons[currentQ.ans].classList.replace('border-pink-100', 'border-green-400');
+                    buttons[currentQ.ans].classList.replace('bg-white', 'bg-green-50');
+                }
+
+                setTimeout(() => this.nextQuestion(), 1200);
+            },
+
+            handleTimeOut: function() {
+                const buttons = document.getElementById('options-container').querySelectorAll('button');
+                buttons.forEach(b => b.disabled = true);
+                
+                const currentQ = this.state.gameQuestions[this.state.currentQIndex];
+                buttons[currentQ.ans].classList.replace('border-pink-100', 'border-green-400');
+                buttons[currentQ.ans].classList.replace('bg-white', 'bg-green-50');
+                
+                setTimeout(() => this.nextQuestion(), 1500);
+            },
+
+            nextQuestion: function() {
+                this.state.currentQIndex++;
+                if (this.state.currentQIndex >= this.state.gameQuestions.length) {
+                    this.endGame();
+                } else {
+                    this.loadQuestion();
+                }
+            },
+
+            updateScoreUI: function() {
+                document.getElementById('game-score').innerText = this.state.score;
+            },
+
+            endGame: function() {
+                this.state.isPlaying = false;
+                document.getElementById('final-score').innerText = this.state.score;
+                this.switchView('view-gameover');
+                this.saveDataToSheet("COMPLETED");
+                this.exitFullScreen();
+            },
+
+            // --- Leaderboard ---
+            showLeaderboard: async function() {
+                this.switchView('view-leaderboard');
+                const content = document.getElementById('leaderboard-content');
+                content.innerHTML = `<div class="text-center py-10 text-gray-400"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i><br>Cargando puntuaciones...</div>`;
+                
+                if(SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") {
+                    content.innerHTML = `<div class="text-center py-10 text-gray-500 text-sm">Modo Demo Activo. Conecta tu App Script para ver datos reales.</div>`;
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${SCRIPT_URL}?action=getLeaderboard`);
+                    const data = await response.json();
+                    
+                    if(!data || data.length === 0) {
+                        content.innerHTML = `<div class="text-center py-10 text-gray-500">Aún no hay puntuaciones. ¡Sé la primera en jugar!</div>`;
+                        return;
+                    }
+
+                    let html = '';
+                    data.forEach((player, i) => {
+                        let medal = '';
+                        if(i === 0) medal = '🥇';
+                        else if (i === 1) medal = '🥈';
+                        else if (i === 2) medal = '🥉';
+                        else medal = `<span class="text-gray-400 font-bold">${i+1}</span>`;
+
+                        let bgClass = i === 0 ? 'bg-gradient-to-r from-yellow-50 to-amber-100 border-yellow-200' : 
+                                      i === 1 ? 'bg-gray-50 border-gray-200' :
+                                      i === 2 ? 'bg-orange-50 border-orange-200' : 'bg-white border-pink-50';
+
+                        html += `
+                            <div class="flex items-center justify-between p-3 md:p-4 rounded-xl border shadow-sm ${bgClass} mb-2">
+                                <div class="flex items-center gap-3 md:gap-4">
+                                    <div class="w-8 md:w-10 text-center text-xl">${medal}</div>
+                                    <div class="font-semibold text-gray-700 truncate max-w-[150px] md:max-w-xs">${player.name}</div>
+                                </div>
+                                <div class="font-black text-rose-500 bg-white px-3 py-1 rounded-full shadow-sm text-sm md:text-base">
+                                    ${player.score} pts
+                                </div>
+                            </div>
+                        `;
+                    });
+                    content.innerHTML = html;
+                } catch (e) {
+                    content.innerHTML = `<div class="text-center py-10 text-red-400">Error al cargar leaderboard.</div>`;
+                }
+            },
+
+            // --- Anti-Plagiarism & Utility ---
+            setupAntiPlagiarism: function() {
+                // Disable Right Click
+                document.addEventListener('contextmenu', event => {
+                    event.preventDefault();
+                    if(this.state.isPlaying) {
+                        this.registerWarning("Clic derecho deshabilitado durante la prueba.");
+                    }
+                });
+
+                // Detect Copy
+                document.addEventListener('copy', event => {
+                    event.preventDefault();
+                    if(this.state.isPlaying) {
+                        this.registerWarning("Copiar texto no está permitido.");
+                    }
+                });
+
+                // Detect Paste
+                document.addEventListener('paste', event => {
+                    event.preventDefault();
+                });
+
+                // Detect Tab switching or app minimizing
+                document.addEventListener("visibilitychange", () => {
+                    if (document.visibilityState === 'hidden' && this.state.isPlaying) {
+                        this.registerWarning("Se detectó que saliste de la pestaña del juego. Esto se considera un comportamiento sospechoso.");
+                    }
+                });
+
+                // Detect Window Blur (clicking outside window, opening other apps)
+                window.addEventListener('blur', () => {
+                    if(this.state.isPlaying) {
+                        // Small timeout to prevent false positives with modals
+                        setTimeout(() => {
+                            if(document.visibilityState === 'visible' && document.hasFocus() === false) {
+                                this.registerWarning("Se detectó interacción fuera de la ventana del juego.");
+                            }
+                        }, 500);
+                    }
+                });
+            },
+
+            registerWarning: function(message) {
+                if(!this.state.isPlaying) return;
+                
+                this.state.warnings++;
+                
+                // Show modal without alert()
+                this.showModal(
+                    "⚠️ Advertencia Anti-Plagio", 
+                    message + `\n\nAdvertencias acumuladas: ${this.state.warnings}`,
+                    "error"
+                );
+                
+                // Real-time update to DB if abuse is high
+                if(this.state.warnings >= 3) {
+                    this.saveDataToSheet("WARNING_LIMIT");
+                    // Optionally end game if cheating too much
+                    // this.endGame(); 
+                }
+            },
+
+            requestFullScreen: function() {
+                const elem = document.documentElement;
+                try {
+                    if (elem.requestFullscreen) {
+                        elem.requestFullscreen();
+                    } else if (elem.webkitRequestFullscreen) { /* Safari */
+                        elem.webkitRequestFullscreen();
+                    } else if (elem.msRequestFullscreen) { /* IE11 */
+                        elem.msRequestFullscreen();
+                    }
+                } catch(e) {
+                    console.log("Fullscreen request denied by browser");
+                }
+            },
+
+            exitFullScreen: function() {
+                try {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) { /* Safari */
+                        document.webkitExitFullscreen();
+                    } else if (document.msExitFullscreen) { /* IE11 */
+                        document.msExitFullscreen();
+                    }
+                } catch(e){}
+            },
+
+            shuffleArray: function(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+        };
+
+        // Initialize App on load
+        window.onload = () => {
+            app.init();
+        };
+
+    </script>
+</body>
+</html>
